@@ -36,11 +36,11 @@ class Autoinvoice implements ObserverInterface
         {
             return;
         }
-        $orderIds = $observer->getEvent()->getOrderIds();
-        $orderId = $orderIds[0];
-        $order = $this->_helper->getOrderByOrderId($orderId);
+
+		$shipment = $observer->getEvent()->getShipment();
+		$order = $shipment->getOrder();
         $this->_helper->assignInvoice($order);
-        $this->_helper->createShipments($order);
+       // $this->_helper->createShipments($order);
         return;
     }
 

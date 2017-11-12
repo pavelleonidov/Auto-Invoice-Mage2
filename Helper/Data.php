@@ -127,12 +127,12 @@ class Data
             $order->addStatusHistoryComment('Invoice Created', false);
             $transactionSave = $this->_transaction->addObject($invoice)->addObject($invoice->getOrder());
             $transactionSave->save();
-            if($this->_isEnabledInvoiceEmail())
-            {
+
                 $this->invoiceSender->send($invoice);
-            }
+
         }catch(\Exception $e)
         {
+        	die($e->getMessage());
             $order->addStatusHistoryComment('Exception message: '.$e->getMessage(), false);
             $order->save();
         }
