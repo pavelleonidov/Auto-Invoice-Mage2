@@ -110,25 +110,29 @@ class Data
      */
     public function assignInvoice($order)
     {
+
         $invoice = NULL;
-        if(!$order->canInvoice()) {
-            return;
-        }
+
         $orderPaymentCode = $this->getOrderPaymentCode($order);
-        if(!$this->checkPaymentConfigByOption($orderPaymentCode,'invoice'))
-        {
-            return;
-        }
+
         try{
-            $invoice  = $this->invoiceService->prepareInvoice($order);
-            $invoice->register();
+            if($order->hasInvoices()) {
+                $invoice = $order->getInvoiceCollection()->getFirstItem();
+            } else {
+                 if(!$order->canInvoice()) {
+                      return;
+                 }
+                $invoice  = $this->invoiceService->prepareInvoice($order);
+                $invoice->register();
 
-            $invoice->getOrder()->setIsInProcess(true);
-            $order->addStatusHistoryComment('Invoice Created', false);
-            $transactionSave = $this->_transaction->addObject($invoice)->addObject($invoice->getOrder());
-            $transactionSave->save();
+                $invoice->getOrder()->setIsInProcess(true);
+                $order->addStatusHistoryComment('Invoice Created', false);
+                $transactionSave = $this->_transaction->addObject($invoice)->addObject($invoice->getOrder());
+                $transactionSave->save();
+            }
 
-                $this->invoiceSender->send($invoice);
+            $this->invoiceSender->send($invoice);
+
 
         }catch(\Exception $e)
         {
